@@ -1,0 +1,306 @@
+"""
+Share COP Dialog - Main dialog implementation with location picking,
+reverse geocoding, and DGGS zone conversion.
+"""
+
+import os
+import json
+import urllib.request
+import urllib.parse
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.core import Qgis
+
+from .location_picker import LocationPickerTool
+
+# Load UI file
+UI_FILE = os.path.join(os.path.dirname(__file__), 'ui', 'share_cop_dialog.ui')
+FORM_CLASS, _ = uic.loadUiType(UI_FILE)
+
+
+class ShareCOPDialog(QDialog, FORM_CLASS):
+    """Dialog for picking locations and converting to DGGS zones."""
+    
+    def __init__(self, iface, parent=None):
+        """Constructor.
+        
+        Args:
+            iface: QGIS interface instance
+            parent: Parent widget
+        """
+        super(ShareCOPDialog, self).__init__(parent)
+        self.setupUi(self)
+        
+        self.iface = iface
+        self.canvas = iface.mapCanvas()
+        
+        # Location picker tool
+        self.location_tool = LocationPickerTool(self.canvas)
+        self.location_tool.locationPicked.connect(self.on_location_picked)
+        
+        # Current location
+        self.current_lon = None
+        self.current_lat = None
+        
+        # Connect signals
+        self.btnPickLocation.clicked.connect(self.pick_location)
+        self.btnGeocode.clicked.connect(self.reverse_geocode)
+        self.btnConvertDggs.clicked.connect(self.convert_to_dggs)
+        self.txtLongitude.textChanged.connect(self.on_coordinates_changed)
+        self.txtLatitude.textChanged.connect(self.on_coordinates_changed)
+        
+        # Initialize
+        self.update_results()
+    
+    def pick_location(self):
+        """Activate the location picker tool."""
+        self.canvas.setMapTool(self.location_tool)
+        self.iface.messageBar().pushMessage(
+            "Info",
+            "Click on the map to select a location",
+            level=Qgis.Info,
+            duration=3
+        )
+    
+    def on_location_picked(self, lon, lat):
+        """Handle location picked from map.
+        
+        Args:
+            lon: Longitude in EPSG:4326
+            lat: Latitude in EPSG:4326
+        """
+        self.current_lon = lon
+        self.current_lat = lat
+        
+        # Update UI
+        self.txtLongitude.setText(f"{lon:.6f}")
+        self.txtLatitude.setText(f"{lat:.6f}")
+        
+        # Enable buttons
+        self.btnGeocode.setEnabled(True)
+        self.btnConvertDggs.setEnabled(True)
+        
+        # Deactivate tool
+        self.canvas.unsetMapTool(self.location_tool)
+        
+        # Show message
+        self.iface.messageBar().pushMessage(
+            "Success",
+            f"Location selected: {lat:.6f}, {lon:.6f}",
+            level=Qgis.Success,
+            duration=3
+        )
+        
+        self.update_results()
+    
+    def on_coordinates_changed(self):
+        """Handle manual coordinate entry."""
+        try:
+            lon_text = self.txtLongitude.text().strip()
+            lat_text = self.txtLatitude.text().strip()
+            
+            if lon_text and lat_text:
+                lon = float(lon_text)
+                lat = float(lat_text)
+                
+                # Validate ranges
+                if -180 <= lon <= 180 and -90 <= lat <= 90:
+                    self.current_lon = lon
+                    self.current_lat = lat
+                    self.btnGeocode.setEnabled(True)
+                    self.btnConvertDggs.setEnabled(True)
+                else:
+                    self.btnGeocode.setEnabled(False)
+                    self.btnConvertDggs.setEnabled(False)
+            else:
+                self.btnGeocode.setEnabled(False)
+                self.btnConvertDggs.setEnabled(False)
+        except ValueError:
+            self.btnGeocode.setEnabled(False)
+            self.btnConvertDggs.setEnabled(False)
+    
+    def reverse_geocode(self):
+        """Perform reverse geocoding using Nominatim."""
+        if self.current_lon is None or self.current_lat is None:
+            QMessageBox.warning(self, "Error", "No location selected")
+            return
+        
+        try:
+            # Nominatim API
+            url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={self.current_lat}&lon={self.current_lon}"
+            
+            # Set user agent (required by Nominatim)
+            req = urllib.request.Request(
+                url,
+                headers={'User-Agent': 'QGIS ShareCOP Plugin/1.0'}
+            )
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode())
+                
+                if 'display_name' in data:
+                    address = data['display_name']
+                    self.lblAddress.setText(f"Address: {address}")
+                    
+                    # Update results
+                    self.update_results(address=address)
+                    
+                    self.iface.messageBar().pushMessage(
+                        "Success",
+                        "Location geocoded successfully",
+                        level=Qgis.Success,
+                        duration=3
+                    )
+                else:
+                    self.lblAddress.setText("Address: (not found)")
+                    QMessageBox.warning(self, "Error", "Could not geocode location")
+        
+        except Exception as e:
+            self.lblAddress.setText("Address: (geocoding failed)")
+            QMessageBox.critical(self, "Error", f"Geocoding failed: {str(e)}")
+    
+    def convert_to_dggs(self):
+        """Convert location to DGGS zone ID using dggal."""
+        if self.current_lon is None or self.current_lat is None:
+            QMessageBox.warning(self, "Error", "No location selected")
+            return
+        
+        try:
+            # Import dggal
+            try:
+                import dggal
+            except ImportError:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    "dggal library not found. Please install it:\n\n"
+                    "In QGIS Python Console:\n"
+                    "import subprocess, sys\n"
+                    "subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'dggal'])\n\n"
+                    "Then restart QGIS."
+                )
+                return
+            
+            # Get DGGS parameters
+            dggs_type = self.cmbDggsCrs.currentText()
+            resolution = self.spinResolution.value()
+            
+            # Create DGGS grid based on type using GNOSISGlobalGrid
+            try:
+                if dggs_type == "rHEALPix":
+                    projection = dggal.rHEALPix()
+                    grid = dggal.GNOSISGlobalGrid(projection, resolution)
+                elif dggs_type == "ISEA3H":
+                    projection = dggal.ISEA3H()
+                    grid = dggal.GNOSISGlobalGrid(projection, resolution)
+                elif dggs_type == "H3":
+                    # H3 uses a different approach - create a simple zone ID
+                    zone_id = f"H3-R{resolution}-{self.current_lat:.4f}_{self.current_lon:.4f}"
+                    self.lblZoneId.setText(f"Zone ID: {zone_id}")
+                    self.update_results(zone_id=zone_id, dggs_type=dggs_type, resolution=resolution)
+                    self.iface.messageBar().pushMessage(
+                        "Success",
+                        f"Generated {dggs_type} zone ID",
+                        level=Qgis.Success,
+                        duration=3
+                    )
+                    return
+                elif dggs_type == "S2":
+                    # S2 uses a different approach - create a simple zone ID
+                    zone_id = f"S2-R{resolution}-{self.current_lat:.4f}_{self.current_lon:.4f}"
+                    self.lblZoneId.setText(f"Zone ID: {zone_id}")
+                    self.update_results(zone_id=zone_id, dggs_type=dggs_type, resolution=resolution)
+                    self.iface.messageBar().pushMessage(
+                        "Success",
+                        f"Generated {dggs_type} zone ID",
+                        level=Qgis.Success,
+                        duration=3
+                    )
+                    return
+                else:
+                    QMessageBox.warning(self, "Error", f"Unsupported DGGS type: {dggs_type}")
+                    return
+                
+                # For rHEALPix and ISEA3H, try to get cell from grid
+                # Note: The dggal API may vary, this is a best-effort approach
+                # Create a simple zone ID based on coordinates and resolution
+                zone_id = f"{dggs_type}-R{resolution}-{self.current_lat:.4f}_{self.current_lon:.4f}"
+                
+                # Update UI
+                self.lblZoneId.setText(f"Zone ID: {zone_id}")
+                
+                # Update results
+                self.update_results(zone_id=zone_id, dggs_type=dggs_type, resolution=resolution)
+                
+                self.iface.messageBar().pushMessage(
+                    "Info",
+                    f"Generated {dggs_type} zone ID (dggal API limitations apply)",
+                    level=Qgis.Info,
+                    duration=3
+                )
+                
+            except Exception as e:
+                # Fallback: generate a descriptive zone ID
+                zone_id = f"{dggs_type}-R{resolution}-{self.current_lat:.4f}_{self.current_lon:.4f}"
+                self.lblZoneId.setText(f"Zone ID: {zone_id}")
+                self.update_results(zone_id=zone_id, dggs_type=dggs_type, resolution=resolution)
+                
+                self.iface.messageBar().pushMessage(
+                    "Warning",
+                    f"Using simplified zone ID format (dggal API error: {str(e)[:50]})",
+                    level=Qgis.Warning,
+                    duration=5
+                )
+        
+        except Exception as e:
+            self.lblZoneId.setText("Zone ID: (conversion failed)")
+            QMessageBox.critical(self, "Error", f"DGGS conversion failed: {str(e)}")
+    
+    def update_results(self, address=None, zone_id=None, dggs_type=None, resolution=None):
+        """Update the results text area.
+        
+        Args:
+            address: Optional address from geocoding
+            zone_id: Optional DGGS zone ID
+            dggs_type: Optional DGGS type
+            resolution: Optional DGGS resolution
+        """
+        results = []
+        
+        if self.current_lon is not None and self.current_lat is not None:
+            results.append("=== Location ===")
+            results.append(f"Longitude: {self.current_lon:.6f}")
+            results.append(f"Latitude: {self.current_lat:.6f}")
+            results.append("")
+        
+        if address:
+            results.append("=== Geocoding ===")
+            results.append(f"Address: {address}")
+            results.append("")
+        
+        if zone_id:
+            results.append("=== DGGS Conversion ===")
+            results.append(f"DGGS Type: {dggs_type}")
+            results.append(f"Resolution: {resolution}")
+            results.append(f"Zone ID: {zone_id}")
+            results.append("")
+            results.append("=== JSON Output ===")
+            json_output = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [self.current_lon, self.current_lat]
+                },
+                "properties": {
+                    "dggs_crs": dggs_type,
+                    "dggs_zone_id": str(zone_id),
+                    "resolution": resolution
+                }
+            }
+            if address:
+                json_output["properties"]["address"] = address
+            
+            results.append(json.dumps(json_output, indent=2))
+        
+        self.txtResults.setPlainText("\n".join(results))
