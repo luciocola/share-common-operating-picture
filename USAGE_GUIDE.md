@@ -7,7 +7,7 @@
    - City: `Berlin`, `New York`, `Tokyo`
    - Full address: `Brandenburg Gate, Berlin, Germany`
    - Landmark: `Eiffel Tower`
-   - Building: `10 Downing Street, London`
+   - Building: `10 Edmonton Street, London`
 2. Press **Enter** or click **"Find Location"**
 3. ✅ **Automatically**:
    - Coordinates filled
@@ -51,19 +51,6 @@ Sydney Opera House
 Big Ben
 ```
 
-### Full Addresses
-```
-1600 Pennsylvania Avenue, Washington DC
-10 Downing Street, London
-Place de la Concorde, Paris
-```
-
-### Coordinates
-```
-13.4050, 52.5200 (Berlin)
--74.0060, 40.7128 (New York)
-139.6917, 35.6895 (Tokyo)
-```
 
 ## 🎯 Complete Workflow
 
