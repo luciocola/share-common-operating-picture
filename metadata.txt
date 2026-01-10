@@ -1,0 +1,25 @@
+[general]
+name=Share Common Operating Picture
+qgisMinimumVersion=3.0
+description=Select locations with reverse geocoding and convert to DGGS zone IDs using dggal
+version=1.0.0
+author=Lucio Colaiacomo
+email=luciocol@gmail.com
+
+about=This plugin provides a location picker with reverse geocoding capabilities and DGGS (Discrete Global Grid System) zone ID conversion using the dggal library. Users can click on the map to select a location, get address information, and convert coordinates to various DGGS systems.
+
+tracker=https://github.com/luciocola/qgisplugin4cop/issues
+repository=https://github.com/luciocola/qgisplugin4cop
+tags=DGGS, geocoding, COP, location, rHEALPix, dggal
+homepage=https://github.com/luciocola/qgisplugin4cop
+category=Web
+icon=icon.png
+experimental=False
+deprecated=False
+
+changelog=
+    1.0.0 - Initial release
+    - Location picker with map click
+    - Reverse geocoding via Nominatim
+    - DGGS zone ID conversion using dggal
+    - Support for multiple DGGS systems

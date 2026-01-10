@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ShareCOPDialogBase</class>
+ <widget class="QDialog" name="ShareCOPDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Share Common Operating Picture</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="grpLocation">
+     <property name="title">
+      <string>Location Selection</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_name">
+        <item>
+         <widget class="QLabel" name="lblLocationName">
+          <property name="text">
+           <string>Location Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtLocationName">
+          <property name="placeholderText">
+           <string>Type location name and press Enter (e.g., Berlin, Germany)</string>
+          </property>
+          <property name="toolTip">
+           <string>Type a location name and press Enter to geocode it</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnGeocode">
+          <property name="text">
+           <string>Find Location</string>
+          </property>
+          <property name="toolTip">
+           <string>Search for the location by name</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblLocationHint">
+        <property name="text">
+         <string>💡 Tip: Type a location name and press Enter or click "Find Location" to automatically fill coordinates and zoom to it.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string>color: #0066cc; font-style: italic; padding: 5px;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnPickLocation">
+        <property name="text">
+         <string>Pick Location from Map</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="lblLongitude">
+          <property name="text">
+           <string>Longitude:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtLongitude">
+          <property name="placeholderText">
+           <string>e.g., 13.4050</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblLatitude">
+          <property name="text">
+           <string>Latitude:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtLatitude">
+          <property name="placeholderText">
+           <string>e.g., 52.5200</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnZoom">
+          <property name="text">
+           <string>Zoom to Location</string>
+          </property>
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_zoom">
+        <item>
+         <widget class="QLabel" name="lblZoomLevel">
+          <property name="text">
+           <string>Zoom Scale:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbZoomLevel">
+          <item>
+           <property name="text">
+            <string>1:1,000 (Building)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1:5,000 (Block)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1:10,000 (Neighborhood)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1:50,000 (City)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1:100,000 (Region)</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblAddress">
+        <property name="text">
+         <string>Address: (not yet geocoded)</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpDGGS">
+     <property name="title">
+      <string>DGGS Zone ID (Optional)</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_dggs">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_dggs">
+        <item>
+         <widget class="QLabel" name="lblDggsCrs">
+          <property name="text">
+           <string>DGGS CRS:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbDggsCrs">
+          <item>
+           <property name="text">
+            <string>rHEALPix</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ISEA3H</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>H3</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>S2</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblResolution">
+          <property name="text">
+           <string>Resolution:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinResolution">
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>20</number>
+          </property>
+          <property name="value">
+           <number>12</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnConvertDggs">
+          <property name="text">
+           <string>Convert to DGGS</string>
+          </property>
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_dggs">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblZoneId">
+        <property name="text">
+         <string>Zone ID: (not yet converted)</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_dggs_advanced">
+        <item>
+         <widget class="QPushButton" name="btnSelectPolygonDggs">
+          <property name="text">
+           <string>Select Polygon → DGGS</string>
+          </property>
+          <property name="toolTip">
+           <string>Select polygon features from existing layers and convert to DGGS zones</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnCreateDggsGrid">
+          <property name="text">
+           <string>Create DGGS Grid</string>
+          </property>
+          <property name="toolTip">
+           <string>Create a DGGS grid covering the current extent or AOI</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_dggs_advanced">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpLayers">
+     <property name="title">
+      <string>Layer Selection</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QLabel" name="lblLayerInstructions">
+        <property name="text">
+         <string>Select layers to include in the Common Operating Picture:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lstLayers">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::MultiSelection</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_layer_buttons">
+        <item>
+         <widget class="QPushButton" name="btnRefreshLayers">
+          <property name="text">
+           <string>🔄 Refresh Layers</string>
+          </property>
+          <property name="toolTip">
+           <string>Reload layers from the QGIS project</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnSelectAll">
+          <property name="text">
+           <string>Select All</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnSelectNone">
+          <property name="text">
+           <string>Select None</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpCOP">
+     <property name="title">
+      <string>COP Metadata, Small Local Language Model valid only for the Red River Valley, Manitoba, Canada</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="lblMission">
+        <property name="text">
+         <string>Mission:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="txtMission">
+        <property name="placeholderText">
+         <string>e.g., Emergency Response 2025</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="btnQueryChatbot">
+        <property name="text">
+         <string>🤖 Query AI</string>
+        </property>
+        <property name="toolTip">
+         <string>Query SEAL Geo RAG Chatbot for mission-related information</string>
+        </property>
+        <property name="minimumWidth">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QGroupBox" name="grpOntologyConcepts">
+        <property name="title">
+         <string>Red River Flood Ontology Concepts</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select concepts from the Red River Flood ontology to include in mission</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_ontology">
+         <item>
+          <widget class="QScrollArea" name="scrollAreaOntology">
+           <property name="maximumHeight">
+            <number>150</number>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>100</width>
+              <height>100</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_ontology_scroll">
+             <item>
+              <widget class="QLabel" name="lblOntologyLoading">
+               <property name="text">
+                <string>Loading ontology concepts...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lblClassification">
+        <property name="text">
+         <string>Classification:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QComboBox" name="cmbClassification">
+        <item>
+         <property name="text">
+          <string>public release</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>internal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>confidential</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>restricted</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>classified</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lblReleasability">
+        <property name="text">
+         <string>Releasability:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLineEdit" name="txtReleasability">
+        <property name="placeholderText">
+         <string>e.g., Public, NATO, EU</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpExport">
+     <property name="title">
+      <string>Export Settings</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_output">
+        <item>
+         <widget class="QLabel" name="lblOutputDir">
+          <property name="text">
+           <string>Output Directory:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtOutputDir">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnBrowse">
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkSignPackage">
+        <property name="text">
+         <string>Sign package with digital signature</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnExport">
+        <property name="text">
+         <string>Create COP Package</string>
+        </property>
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ShareCOPDialogBase</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

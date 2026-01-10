@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#E53935" stroke="#B71C1C" stroke-width="2"/>
+  
+  <!-- White emergency beacon/siren light effect -->
+  <path d="M 32 8 L 38 20 L 26 20 Z" fill="#FFEB3B" opacity="0.8"/>
+  
+  <!-- Emergency symbol - medical cross and alert -->
+  <g transform="translate(32, 32)">
+    <!-- Alert triangle -->
+    <path d="M 0 -18 L 10 2 L -10 2 Z" fill="#FFFFFF" stroke="#B71C1C" stroke-width="1.5"/>
+    
+    <!-- Exclamation mark -->
+    <rect x="-1.5" y="-12" width="3" height="8" fill="#E53935" rx="1"/>
+    <circle cx="0" cy="-1" r="2" fill="#E53935"/>
+    
+    <!-- Medical cross at bottom -->
+    <g transform="translate(0, 14)">
+      <rect x="-6" y="-2" width="12" height="4" fill="#FFFFFF" rx="1"/>
+      <rect x="-2" y="-6" width="4" height="12" fill="#FFFFFF" rx="1"/>
+    </g>
+  </g>
+  
+  <!-- Rotating emergency light effect (dashed circle) -->
+  <circle cx="32" cy="32" r="26" fill="none" stroke="#FFEB3B" stroke-width="2" 
+          stroke-dasharray="4 4" opacity="0.6"/>
+</svg>
